@@ -3,10 +3,52 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import { createStore, applyMiddleware, compose } from 'redux';
+import rootReducer from './Store/Reducers/RootReducer';
+import { Provider, useSelector } from 'react-redux';
+import thunk from 'redux-thunk';
+// import { reduxFirestore, getFirestore } from 'redux-firestore';
+// import { reactReduxFirebase, getFirebase } from 'react-redux-firebase';
+import { ReactReduxFirebaseProvider, getFirebase, isLoaded } from 'react-redux-firebase'
+import { createFirestoreInstance, getFirestore } from 'redux-firestore'
+import fbConfig from './Config/fbconfig';
+import firebase from 'firebase/app';
+
+const store = createStore(rootReducer,
+  compose(
+    applyMiddleware(thunk.withExtraArgument({ getFirestore, getFirebase })),
+  )
+)
+
+const AuthIsLoaded = ({ children }) => {
+  const auth = useSelector(state => state.firebase.auth)
+  if (!isLoaded(auth)) return <div>hello</div>;
+  return children
+}
+
+const rrfConfig = {
+  userProfile: "users",
+  useFirestoreForProfile: true // Firestore for Profile instead of Realtime DB
+}
+
+const rrfProps = {
+
+  firebase,
+  config: rrfConfig,
+  dispatch: store.dispatch,
+  createFirestoreInstance, // <- needed if using firestore
+
+}
 
 ReactDOM.render(
   <React.StrictMode>
-    <App />
+    <Provider store={store}>
+      <ReactReduxFirebaseProvider {...rrfProps}>
+        <AuthIsLoaded>
+          <App />
+        </AuthIsLoaded>
+      </ReactReduxFirebaseProvider>
+    </Provider>
   </React.StrictMode>,
   document.getElementById('root')
 );
