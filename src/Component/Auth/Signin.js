@@ -15,7 +15,6 @@ class signin extends Component {
     }
     submitHandler = (e) => {
         e.preventDefault();
-        console.log(this.props.authError)
         this.props.signIn(this.state)
     }
     render() {

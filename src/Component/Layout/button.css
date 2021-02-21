@@ -1,0 +1,10 @@
+.Button {
+  background-color: red;
+  border: 1px solid transparent;
+  cursor: pointer;
+}
+
+.Button:hover,
+.ButtonLink:focus {
+  text-decoration: underline;
+}
